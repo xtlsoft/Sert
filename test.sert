@@ -1,0 +1,53 @@
+!package _main_::test;
+
+!macroParser mySep {
+    <php>
+        return function ($macro_name, $args, $macro_content) {
+            return explode(",", $macro_content);
+        };
+    </php>
+    <js>
+        return function(name, args, content) {
+            return content.split(",");
+        };
+    </js>
+};
+!macro (mySep) testMacro(...a) lang::debugLog(a);
+
+// lang::import(lang::findPackage("std::cli::app::StandardApplication"));
+// lang::alias("std::cli::app::StandardApplication", "BaseApp")
+@use std::cli::app::StandardApplication as BaseApp;
+@use std::cli::Context as Ctx;
+@use std::environment;
+@use std::global;
+@use std::math;
+
+@fn main {
+    r = 3;
+    s = math::pow(r, 2) * math::pi;
+    global::get("appClass").io.stdout.write(s);
+    @return 0;
+};
+
+@class App < BaseApp {
+    @pub {
+        _new = Function::new({
+            this.construct();
+        });
+        _destory = (@fn {
+            this.destruct();
+        });
+    };
+    @priv {
+        @fn construct {
+            this.mainCallable = main
+            global::store("appClass", this)
+        };
+        @fn destruct {
+            this.io.stdout.write("Goodbye");
+        };
+    };
+};
+
+app = App::new()
+app.run(Ctx::new(environment::getStdContext()))
