@@ -12,8 +12,6 @@ namespace Sert\Parser\Lexer;
 
 class Token {
     
-    protected $token = 
-
-    public function nextToken(4)
+    
 
 }
