@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sert.php
  * 
@@ -10,7 +11,8 @@
 
 namespace Sert\Parser\PreCompiler;
 
-class PreCompiler {
+class PreCompiler
+{
 
     protected $ins = [
         'package',
@@ -22,10 +24,10 @@ class PreCompiler {
     protected $macroParsers = [];
     protected $codePieces = [];
 
-    public function __construct() {
+    public function __construct()
+    {
 
         // Default marcos and parsers
 
     }
-
 }

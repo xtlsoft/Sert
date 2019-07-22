@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sert.php
  * 
@@ -10,18 +11,19 @@
 
 namespace Sert\Parser\Macro;
 
-class Marco {
+class Macro
+{
 
     public $name = "";
     public $args = [];
     public $parser = "";
-    public $repl = "";
+    public $target = "";
 
-    public function __construct($parser, $name, $args, $repl) {
+    public function __construct($parser, $name, $args, $target)
+    {
         $this->name = $name;
         $this->args = $args;
         $this->parser = $parser;
-        $this->repl = $repl;
+        $this->target = $target;
     }
-
 }
