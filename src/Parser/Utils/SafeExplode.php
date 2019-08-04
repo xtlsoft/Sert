@@ -17,6 +17,8 @@ class SafeExplode
     public static function explode($sep, $str)
     {
         $splited = str_split($str);
+        $brackets = [];
+        $quotes = [];
         for ($i = 0; $i < strlen($str); ++$i) { }
     }
 

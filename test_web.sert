@@ -1,0 +1,20 @@
+!package _main_::webApplication::test;
+
+@import std::web::app::Router [macro];
+@import std::web::Request;
+@import std::web::Response [macro];
+@import std::web::app::HttpServer;
+
+@router Main {
+    @group / {
+        @rule index.html [alias=""] (@fn (req: Request) {
+            @response "hello, world: "+req.client.addr
+                [
+                    status = 200,
+                    header[X-Powered-By] = "Sert/WebApplication",
+                ];
+        });
+    };
+};
+
+HttpServer::new().router(Main).serve([Log: true, LogMode=HttpServer::LogStdout]);

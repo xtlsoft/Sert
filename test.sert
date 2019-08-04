@@ -1,16 +1,11 @@
 !package _main_::test;
 
 !macroParser mySep {
-    <php>
+    <?php
         return function ($macro_name, $args, $macro_content) {
             return explode(",", $macro_content);
         };
-    </php>
-    <js>
-        return function(name, args, content) {
-            return content.split(",");
-        };
-    </js>
+    ?>
 };
 !macro (mySep) testMacro(...a) lang::debugLog(a);
 
