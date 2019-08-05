@@ -12,14 +12,16 @@
 namespace Sert\Parser\Utils;
 
 use Sert\Exceptions\UnmatchedBracketsException;
+use Sert\Exceptions\IgnoreUtilCannotPredictNextCharacterException;
 
 /**
  * IgnoreUtil checks if you need to
  * ignore the character temporarily
  * when parsing.
  * 
- * Remember that comments's '#' and
- * '//' beginnings won't be marked.
+ * If nextCharacter was not given,
+ * remember that a comment's first
+ * '/' won't be marked as ignorable.
  */
 class IgnoreUtil
 {
@@ -35,6 +37,7 @@ class IgnoreUtil
     protected $bracketStack = null;
     protected $inQuote = '';
     protected $lastCharacter = '';
+    protected $lastNonBlankCharacter = '';
     protected $backslashEscaped = false;
     protected $inComment = false;
     public function __construct()
@@ -49,6 +52,7 @@ class IgnoreUtil
         $this->bracketStack = new \SplStack();
         $this->backslashEscaped = false;
         $this->lastCharacter = '';
+        $this->lastNonBlankCharacter = '';
         return $this;
     }
     public function feed(string $char): self
@@ -82,7 +86,23 @@ class IgnoreUtil
                 throw new UnmatchedBracketsException("Unmatched brackets: $char != $poped");
         }
         $this->lastCharacter = $char;
+        if (!SafeExplode::isBlankCharacter($char)) $this->lastNonBlankCharacter = $char;
         return $this;
+    }
+    public function ignoreBrackets($ignore = true): self
+    {
+        if ($ignore) $this->brackets = [];
+        else $this->brackets = ['[' => ']', '(' => ')', '{' => '}'];
+        $this->initialize();
+        return $this;
+    }
+    public function getLastNonBlankCharacter(): string
+    {
+        return $this->lastNonBlankCharacter;
+    }
+    public function isBracketStackEmpty(): bool
+    {
+        return $this->bracketStack->isEmpty();
     }
     public function check(): bool
     {
@@ -91,11 +111,21 @@ class IgnoreUtil
         if (!$this->bracketStack->isEmpty()) return true;
         return false;
     }
-    public function shouldIgnore(string $ch): bool
+    public function shouldIgnore(string $ch, string $nextChar = ''): bool
     {
         $check = $this->check();
         $this->feed($ch);
+        if ($check) return true;
+        if ($ch === '#') return true;
+        if ($ch === '/') {
+            if ($this->lastCharacter === '/') return true;
+            else if ($nextChar === '/') return true;
+        }
         if (in_array($ch, $this->bracketKeys) || in_array($ch, $this->quotes)) return true;
-        return $check;
+        return false;
+    }
+    public static function getNext(array $arr, int $offset): string
+    {
+        return isset($arr[$offset + 1]) ? $arr[$offset + 1] : '';
     }
 }

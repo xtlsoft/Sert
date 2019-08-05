@@ -16,6 +16,11 @@ class Macro
 
     public $name = "";
     public $args = [];
+    /**
+     * Macro Parser
+     *
+     * @var MacroParser
+     */
     public $parser = "";
     public $target = "";
 

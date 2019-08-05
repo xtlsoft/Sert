@@ -13,7 +13,6 @@ namespace Sert\Parser\PreCompiler;
 
 class PreCompiler
 {
-
     protected $ins = [
         'package',
         'macro',

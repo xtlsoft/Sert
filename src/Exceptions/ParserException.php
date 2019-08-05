@@ -13,5 +13,5 @@ namespace Sert\Exceptions;
 
 use Exception;
 
-class MacroParserNotFoundException extends ParserException
+class ParserException extends Exception
 { }

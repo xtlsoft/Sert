@@ -14,10 +14,12 @@ namespace Sert\Parser\Macro;
 use Sert\Exceptions\MacroSyntaxErrorException;
 use Sert\Parser\PreCompiler\CodePiece;
 use Sert\Parser\Utils\SafeExplode;
+use Sert\Parser\Utils\IgnoreUtil;
+use Sert\Exceptions\SyntaxErrorException;
+use Sert\Exceptions\NoMacroException;
 
 class MacroCompiler
 {
-
     /**
      * @var Macro[]
      */
@@ -28,70 +30,82 @@ class MacroCompiler
         $this->macros = $macros;
     }
 
-    public function compile(\Sert\Parser\PreCompiler\CodePiece $code)
+    public function compile(\Sert\Parser\PreCompiler\CodePiece $code): array
     {
-        $c = str_split($code->code);
-        $inQuote = 'no';
-        $inComment = false;
-        $brackets = new \SplStack();
-        $i = 0;
+        $rslt = [];
+        $rslt[0] = new CodePiece($code->filename, '', $code->start);
+        $cnt = 0;
+        $iu = new IgnoreUtil();
+        $iu->ignoreBrackets();
+        $inMacro = false;
         $start = 0;
         $end = 0;
-        $content = '';
-        $lastCh = '';
-        while ($i < count($c)) {
-            $ch = $c[$i];
-            if ($inComment && $c === "\n") $inComment = false;
-            if ((($ch === '/' && $c[$i + 1] === '/') || $ch === '#') && $inQuote !== 'no') $inComment = true;
-            if ($ch === $inQuote && $c[$i - 1] !== '\\') $inQuote = 'no';
-            else if (($ch === '"' || $ch === "'") && $inQuote === 'no') $inQuote = $ch;
-            if ($inQuote === 'no' && $inComment === false) {
-                if ($ch === '@') {
-                    if ($lastCh !== '(') {
-                        $start = $i;
-                        $i++;
-                        $ch = $c[$i];
-                        while ($ch !== ';' || (!$brackets->isEmpty())) {
-                            $ch = $c[$i];
-                            if ($ch === '(' || $ch === '{') $brackets->push(1);
-                            if ($ch === ')' || $ch === '}') $brackets->pop();
-                            $content .= $ch;
-                            $i++;
-                            $ch = $c[$i];
-                        }
-                        $end = $i;
-                    } else if ($lastCh === '(') {
-                        $start = $i;
-                        $i++;
-                        $ch = $c[$i];
-                        $brackets->push(1);
-                        while (!$brackets->isEmpty()) {
-                            $ch = $c[$i];
-                            if ($ch === '(' || $ch === '{') $brackets->push(1);
-                            if ($ch === ')' || $ch === '}') $brackets->pop();
-                            $content .= $ch;
-                            $i++;
-                            $ch = $c[$i];
-                        }
-                        $end = $i - 2;
-                        $content = substr($content, 0, -1);
+        $macro = '';
+        $macroIU = new IgnoreUtil();
+        $code_arr = str_split($code->code);
+        foreach ($code_arr as $key => $ch) {
+            $offset = $code->start + $key;
+            $lastNonBlankCharacter = $iu->getLastNonBlankCharacter();
+            if ($inMacro) {
+                if (
+                    $macroIU->shouldIgnore($ch, IgnoreUtil::getNext($code_arr, $key))
+                    || (substr($macro, 0, 1) !== '(' && $ch !== ';')
+                ) {
+                    $macro .= $ch;
+                    continue;
+                } else {
+                    $inMacro = false;
+                    $end = $offset;
+                    if (substr($macro, 0, 1) === '(') {
+                        $macro = substr($macro, 1, -1);
                     }
-                    $content = "@" . $content;
-                    // TODO: Real parse code
-                    echo $start . ' ' . $end . ' ' . $content . PHP_EOL;
-                    // TODO: Remove debug code
-                    $macro_name = self::getMacroNameFromExpression($content);
-                    if (!isset($this->macros[$macro_name]))
-                        throw (new MacroSyntaxErrorException("Macro $macro_name not found"))
-                            ->withPosition($start, $end)
-                            ->withCode($code);
-                    $macro = $this->macros[$macro_name];
-                    var_dump($macro);
+                    // TODO: Parse Macro
+                    echo $start, ' ', $end, ' ', $macro, PHP_EOL;
+                    $cp = new CodePiece($code->filename, $macro, $start);
+                    $parse_rslt = $this->parseMacro($cp);
+                    $rslt = array_merge($rslt, $parse_rslt);
+                    $cnt = count($rslt) - 1;
+                    $rslt[++$cnt] = new CodePiece($code->filename, $ch, $end + 1);
+                }
+            } else {
+                $rslt[$cnt]->code .= $ch;
+                if ($iu->shouldIgnore($ch, IgnoreUtil::getNext($code_arr, $key))) continue;
+                else if ($ch === '@') {
+                    $inMacro = true;
+                    $macroIU->initialize();
+                    $start = $offset;
+                    if ($lastNonBlankCharacter === '(') {
+                        $macro = '(@';
+                        $macroIU->feed('(');
+                        $iu->feed(')');
+                        $rslt[$cnt]->code = substr($rslt[$cnt]->code, 0, -2);
+                    } else {
+                        $macro = '@';
+                        $rslt[$cnt]->code = substr($rslt[$cnt]->code, 0, -1);
+                    }
                 }
             }
-            if ($inComment === false && $inQuote === 'no' && $ch !== ' ' && $ch !== "\t" && $ch !== "\r" && $ch !== "\n") $lastCh = $ch;
-            $i++;
         }
+        if ($iu->check()) {
+            throw (new SyntaxErrorException("Unmatched brackets"))
+                ->withPosition(strlen($code) - 1, strlen($code) - 1)
+                ->withCode($code);
+        }
+        if ($inMacro) {
+            throw (new SyntaxErrorException("Missing the end of macro"))
+                ->withPosition(strlen($code) - 1, strlen($code) - 1)
+                ->withCode($code);
+        }
+        return $rslt;
+    }
+
+    protected function parseMacro(CodePiece $input): array
+    {
+        $name = self::getMacroNameFromExpression($input->code);
+        if (!isset($this->macros[$name])) throw new NoMacroException("Macro $name not found");
+        $macro = $this->macros[$name];
+        $parser = $macro->parser->rule;
+        return call_user_func($parser, $this, $macro, $input);
     }
 
     public static function getMacroNameFromExpression(string $expr): string

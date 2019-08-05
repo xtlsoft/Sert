@@ -13,9 +13,7 @@ namespace Sert\Exceptions;
 
 use Sert\Parser\PreCompiler\CodePiece;
 
-use Exception;
-
-class SyntaxErrorException extends Exception
+class SyntaxErrorException extends ParserException
 {
     public $start = 0;
     public $end = 0;
