@@ -1,0 +1,19 @@
+!package _main_::webApplication::test;
+
+lang::import(lang::findPackage("std::web::app::Router"));
+lang::import(lang::findPackage("std::web::Request"));
+lang::import(lang::findPackage("std::web::Response"));
+lang::import(lang::findPackage("std::web::app::HttpServer"));
+
+let Main = Router::new({
+    Router::group("/", {
+        Router::rule("index.html", [alias=""], lang::function::new((req: Request), {
+            return Reponse::new("hello, world: "+req.client.addr, [
+                    status = 200,
+                    header[X-Powered-By] = "Sert/WebApplication",
+                ]);
+        }));
+    });
+});
+
+HttpServer::new().router(Main).serve([Log: true, LogMode=HttpServer::LogStdout]);

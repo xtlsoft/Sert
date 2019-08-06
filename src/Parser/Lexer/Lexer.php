@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sert.php
  * 
@@ -10,6 +11,5 @@
 
 namespace Sert\Parser\Lexer;
 
-class Lexer {
-    
-}
+class Lexer
+{ }

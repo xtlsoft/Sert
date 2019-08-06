@@ -44,6 +44,7 @@ class MacroCompiler
         $macro = '';
         $macroIU = new IgnoreUtil();
         $code_arr = str_split($code->code);
+        $code_arr[] = ''; // Avoid errors when a macro is the ending of the code
         foreach ($code_arr as $key => $ch) {
             $offset = $code->start + $key;
             $lastNonBlankCharacter = $iu->getLastNonBlankCharacter();

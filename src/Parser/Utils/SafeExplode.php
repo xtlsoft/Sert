@@ -23,8 +23,9 @@ class SafeExplode
         $cnt = 0;
         foreach ($splited as $ch) {
             if (!$iu->shouldIgnore($ch)) {
-                if ($ch === $sep) $rslt[++$cnt] = '';
-                else $rslt[$cnt] .= $ch;
+                if ($sep === '' ? !self::isBlankCharacter($ch) : $ch !== $sep)
+                    $rslt[$cnt] .= $ch;
+                else if ($rslt[$cnt] !== '') $rslt[++$cnt] = '';
             } else $rslt[$cnt] .= $ch;
         }
         return $rslt;

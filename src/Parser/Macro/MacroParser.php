@@ -56,7 +56,7 @@ class MacroParser
 
     public static function stdParser(MacroCompiler $compiler, Macro $macro, CodePiece $input): CodePieceCollection
     {
-        $exploded = SafeExplode::explodeCodePiece(' ', $input);
+        $exploded = SafeExplode::explodeCodePiece('', $input);
         $rslt = $macro->getPreparedTarget($input);
         foreach ($macro->args as $k => $v) {
             $rslt = $rslt->replace(
