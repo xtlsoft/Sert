@@ -16,6 +16,7 @@ use Sert\Parser\Macro\MacroCompiler;
 use Sert\Parser\Macro\Macro;
 use Sert\Parser\Macro\MacroParser;
 use Sert\Parser\PreCompiler\CodePiece;
+use Sert\Exceptions\NoMacroException;
 
 class MacroCompilerTest extends TestCase
 {
@@ -53,5 +54,12 @@ class MacroCompilerTest extends TestCase
         $origin = '123; @123 (@123 321);';
         $r = $c->compile(new CodePiece('__phpunit__' . uniqid(), $origin))->toString();
         $this->assertEquals('123; macro_test(macro_test(321));', $r);
+    }
+
+    public function testNoMacroException()
+    {
+        $this->expectException(NoMacroException::class);
+        $c = new MacroCompiler([]);
+        $c->compile(new CodePiece('__phpunit__' . uniqid(), '@345;'));
     }
 }
