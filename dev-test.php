@@ -9,22 +9,6 @@ use Sert\Parser\Utils\CodePieceCollection;
 
 require_once "vendor/autoload.php";
 
-MacroParser::register(new MacroParser(
-    "std_parser",
-    function (MacroCompiler $compiler, Macro $macro, CodePiece $input): CodePieceCollection {
-        $exploded = SafeExplode::explodeCodePiece(' ', $input);
-        $rslt = new CodePieceCollection([(new CodePiece($input->filename, $macro->target, $input->start))]);
-        foreach ($macro->args as $k => $v) {
-            $rslt = $rslt->replace(
-                "\$$v",
-                $compiler->compile($exploded[$k + 1]),
-                $rslt
-            );
-        }
-        return $rslt;
-    }
-));
-
 $c = new MacroCompiler([
     "123" => (new Macro(
         MacroParser::get('std_parser'),
@@ -35,4 +19,4 @@ $c = new MacroCompiler([
 ]);
 $code = new \Sert\Parser\PreCompiler\CodePiece("test.sert", 'as;(@123 333);n;');
 
-echo $c->compile($code)->toString();
+echo $c->compile($code);

@@ -11,6 +11,9 @@
 
 namespace Sert\Parser\Macro;
 
+use Sert\Parser\PreCompiler\CodePiece;
+use Sert\Parser\Utils\CodePieceCollection;
+
 class Macro
 {
 
@@ -30,5 +33,16 @@ class Macro
         $this->args = $args;
         $this->parser = $parser;
         $this->target = $target;
+    }
+
+    public function getPreparedTarget(CodePiece $code): CodePieceCollection
+    {
+        return (new CodePieceCollection([
+            new CodePiece(
+                $code->filename,
+                $this->target,
+                $code->start
+            )
+        ]));
     }
 }

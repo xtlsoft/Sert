@@ -12,10 +12,12 @@
 namespace Sert\Parser\Macro;
 
 use Sert\Exceptions\MacroParserNotFoundException;
+use Sert\Parser\Utils\CodePieceCollection;
+use Sert\Parser\PreCompiler\CodePiece;
+use Sert\Parser\Utils\SafeExplode;
 
 class MacroParser
 {
-
     public $name = "";
     public $rule = null;
 
@@ -29,6 +31,11 @@ class MacroParser
 
     public static function register(MacroParser $parser): MacroParser
     {
+        if (func_num_args() > 1) {
+            foreach (func_get_args() as $item) {
+                self::register($item);
+            }
+        }
         self::$registered_parsers[$parser->name] = $parser;
         return $parser;
     }
@@ -39,4 +46,27 @@ class MacroParser
             throw new MacroParserNotFoundException("Macro parser $name not found");
         return self::$registered_parsers[$name];
     }
+
+    public static function init(): void
+    {
+        self::register(
+            new MacroParser('std_parser', self::class . '::stdParser')
+        );
+    }
+
+    public static function stdParser(MacroCompiler $compiler, Macro $macro, CodePiece $input): CodePieceCollection
+    {
+        $exploded = SafeExplode::explodeCodePiece(' ', $input);
+        $rslt = $macro->getPreparedTarget($input);
+        foreach ($macro->args as $k => $v) {
+            $rslt = $rslt->replace(
+                "\$$v",
+                $compiler->compile($exploded[$k + 1]),
+                $rslt
+            );
+        }
+        return $rslt;
+    }
 }
+
+MacroParser::init();

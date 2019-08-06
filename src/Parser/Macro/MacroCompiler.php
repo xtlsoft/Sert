@@ -60,7 +60,6 @@ class MacroCompiler
                     if (substr($macro, 0, 1) === '(') {
                         $macro = substr($macro, 1, -1);
                     }
-                    echo $start, ' ', $end, ' ', $macro, PHP_EOL;
                     $cp = new CodePiece($code->filename, $macro, $start);
                     $parse_rslt = $this->parseMacro($cp);
                     $rslt = array_merge($rslt, $parse_rslt->data);
