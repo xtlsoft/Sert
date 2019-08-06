@@ -61,8 +61,7 @@ class MacroParser
         foreach ($macro->args as $k => $v) {
             $rslt = $rslt->replace(
                 "\$$v",
-                $compiler->compile($exploded[$k + 1]),
-                $rslt
+                $compiler->compile($exploded[$k + 1])
             );
         }
         return $rslt;

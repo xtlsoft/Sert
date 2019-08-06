@@ -12,7 +12,6 @@
 namespace Sert\Parser\Utils;
 
 use Sert\Exceptions\UnmatchedBracketsException;
-use Sert\Exceptions\IgnoreUtilCannotPredictNextCharacterException;
 
 /**
  * IgnoreUtil checks if you need to
@@ -34,7 +33,7 @@ class IgnoreUtil
      *
      * @var \SplStack
      */
-    protected $bracketStack = null;
+    protected $bracketStack;
     protected $inQuote = '';
     protected $lastCharacter = '';
     protected $lastNonBlankCharacter = '';

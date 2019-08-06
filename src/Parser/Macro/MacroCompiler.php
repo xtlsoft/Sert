@@ -87,12 +87,12 @@ class MacroCompiler
         }
         if ($iu->check()) {
             throw (new SyntaxErrorException("Unmatched brackets"))
-                ->withPosition(strlen($code) - 1, strlen($code) - 1)
+                ->withPosition(strlen($code->code) - 1, strlen($code->code) - 1)
                 ->withCode($code);
         }
         if ($inMacro) {
             throw (new SyntaxErrorException("Missing the end of macro"))
-                ->withPosition(strlen($code) - 1, strlen($code) - 1)
+                ->withPosition(strlen($code->code) - 1, strlen($code->code) - 1)
                 ->withCode($code);
         }
         return new CodePieceCollection($rslt);

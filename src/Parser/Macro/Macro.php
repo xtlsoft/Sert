@@ -24,7 +24,7 @@ class Macro
      *
      * @var MacroParser
      */
-    public $parser = "";
+    public $parser;
     public $target = "";
 
     public function __construct($parser, $name, $args, $target)

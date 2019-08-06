@@ -17,7 +17,12 @@ class SyntaxErrorException extends ParserException
 {
     public $start = 0;
     public $end = 0;
-    public $code = null;
+    /**
+     * Code
+     *
+     * @var CodePiece
+     */
+    public $code;
     public function withPosition(int $start, int $end): self
     {
         $this->$start = $start;
