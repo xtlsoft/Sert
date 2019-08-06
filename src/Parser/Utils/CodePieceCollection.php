@@ -25,6 +25,10 @@ class CodePieceCollection
     {
         $this->data = $codepieces;
     }
+    public function replace(string $origin, CodePieceCollection $target): CodePieceCollection
+    {
+        return new self(Replace::replaceCodePieces($origin, $target->data, $this->data));
+    }
     public function toString(): string
     {
         $r = '';

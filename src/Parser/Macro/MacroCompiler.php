@@ -17,6 +17,7 @@ use Sert\Parser\Utils\SafeExplode;
 use Sert\Parser\Utils\IgnoreUtil;
 use Sert\Exceptions\SyntaxErrorException;
 use Sert\Exceptions\NoMacroException;
+use Sert\Parser\Utils\CodePieceCollection;
 
 class MacroCompiler
 {
@@ -30,7 +31,7 @@ class MacroCompiler
         $this->macros = $macros;
     }
 
-    public function compile(\Sert\Parser\PreCompiler\CodePiece $code): array
+    public function compile(\Sert\Parser\PreCompiler\CodePiece $code): CodePieceCollection
     {
         $rslt = [];
         $rslt[0] = new CodePiece($code->filename, '', $code->start);
@@ -59,11 +60,10 @@ class MacroCompiler
                     if (substr($macro, 0, 1) === '(') {
                         $macro = substr($macro, 1, -1);
                     }
-                    // TODO: Parse Macro
                     echo $start, ' ', $end, ' ', $macro, PHP_EOL;
                     $cp = new CodePiece($code->filename, $macro, $start);
                     $parse_rslt = $this->parseMacro($cp);
-                    $rslt = array_merge($rslt, $parse_rslt);
+                    $rslt = array_merge($rslt, $parse_rslt->data);
                     $cnt = count($rslt) - 1;
                     $rslt[++$cnt] = new CodePiece($code->filename, $ch, $end + 1);
                 }
@@ -96,16 +96,18 @@ class MacroCompiler
                 ->withPosition(strlen($code) - 1, strlen($code) - 1)
                 ->withCode($code);
         }
-        return $rslt;
+        return new CodePieceCollection($rslt);
     }
 
-    protected function parseMacro(CodePiece $input): array
+    protected function parseMacro(CodePiece $input): CodePieceCollection
     {
         $name = self::getMacroNameFromExpression($input->code);
         if (!isset($this->macros[$name])) throw new NoMacroException("Macro $name not found");
         $macro = $this->macros[$name];
         $parser = $macro->parser->rule;
-        return call_user_func($parser, $this, $macro, $input);
+        $rslt = call_user_func($parser, $this, $macro, $input);
+        if (is_array($rslt)) return new CodePieceCollection($rslt);
+        else return $rslt;
     }
 
     public static function getMacroNameFromExpression(string $expr): string

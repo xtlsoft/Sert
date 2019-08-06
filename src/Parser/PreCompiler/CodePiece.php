@@ -11,9 +11,11 @@
 
 namespace Sert\Parser\PreCompiler;
 
+use Sert\Parser\Utils\CodePieceCollection;
+use Sert\Parser\Utils\Replace;
+
 class CodePiece
 {
-
     public $code = "";
     public $package = "_default_";
     public $aliases = [];
@@ -25,5 +27,10 @@ class CodePiece
         $this->code = $code;
         $this->filename = $filename;
         $this->start = $start;
+    }
+
+    public function replace(string $origin, CodePieceCollection $target): CodePieceCollection
+    {
+        return new CodePieceCollection(Replace::replaceCodePiece($origin, $target->data, $this));
     }
 }
