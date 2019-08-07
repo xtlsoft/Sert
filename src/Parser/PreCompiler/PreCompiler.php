@@ -11,16 +11,39 @@
 
 namespace Sert\Parser\PreCompiler;
 
+use Sert\Parser\Macro\Macro;
+use Sert\Parser\Macro\MacroParser;
+
 class PreCompiler
 {
+    /**
+     * Instances
+     *
+     * @var string[]
+     */
     protected $ins = [
         'package',
         'macro',
         'macroParser',
     ];
 
+    /**
+     * Macros
+     *
+     * @var Macro[]
+     */
     protected $macros = [];
+    /**
+     * MacroParsers
+     *
+     * @var MacroParser[]
+     */
     protected $macroParsers = [];
+    /**
+     * CodePieces
+     *
+     * @var CodePiece[]
+     */
     protected $codePieces = [];
 
     public function __construct()

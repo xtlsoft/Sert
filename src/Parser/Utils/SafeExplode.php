@@ -31,6 +31,13 @@ class SafeExplode
         return $rslt;
     }
 
+    /**
+     * Explode a CodePiece
+     *
+     * @param string $sep
+     * @param CodePiece $str
+     * @return CodePiece[]
+     */
     public static function explodeCodePiece(string $sep, CodePiece $str): array
     {
         $rslt = [];

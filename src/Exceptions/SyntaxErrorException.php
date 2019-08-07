@@ -15,14 +15,24 @@ use Sert\Parser\PreCompiler\CodePiece;
 
 class SyntaxErrorException extends ParserException
 {
+    /**
+     * Start position
+     *
+     * @var integer
+     */
     public $start = 0;
+    /**
+     * End position
+     *
+     * @var integer
+     */
     public $end = 0;
     /**
      * Code
      *
-     * @var CodePiece
+     * @var CodePiece|null
      */
-    public $code;
+    public $code = null;
     public function withPosition(int $start, int $end): self
     {
         $this->$start = $start;

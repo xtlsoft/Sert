@@ -24,9 +24,29 @@ use Sert\Exceptions\UnmatchedBracketsException;
  */
 class IgnoreUtil
 {
+    /**
+     * Bracket map
+     *
+     * @var array
+     */
     public $brackets = ['[' => ']', '(' => ')', '{' => '}'];
+    /**
+     * Known quotes
+     *
+     * @var string[]
+     */
     public $quotes = ['"', "'"];
+    /**
+     * Bracket keys
+     *
+     * @var string[]
+     */
     protected $bracketKeys = [];
+    /**
+     * Bracket values
+     *
+     * @var string[]
+     */
     protected $bracketValues = [];
     /**
      * Bracket Stack
@@ -34,10 +54,35 @@ class IgnoreUtil
      * @var \SplStack
      */
     protected $bracketStack;
+    /**
+     * In which quote
+     *
+     * @var string
+     */
     protected $inQuote = '';
+    /**
+     * Last character
+     *
+     * @var string
+     */
     protected $lastCharacter = '';
+    /**
+     * Last non-blank character
+     *
+     * @var string
+     */
     protected $lastNonBlankCharacter = '';
+    /**
+     * Was the last backslash escaped
+     *
+     * @var boolean
+     */
     protected $backslashEscaped = false;
+    /**
+     * Is in comment
+     *
+     * @var boolean
+     */
     protected $inComment = false;
     public function __construct()
     {
@@ -88,7 +133,7 @@ class IgnoreUtil
         if (!SafeExplode::isBlankCharacter($char)) $this->lastNonBlankCharacter = $char;
         return $this;
     }
-    public function ignoreBrackets($ignore = true): self
+    public function ignoreBrackets(bool $ignore = true): self
     {
         if ($ignore) $this->brackets = [];
         else $this->brackets = ['[' => ']', '(' => ')', '{' => '}'];

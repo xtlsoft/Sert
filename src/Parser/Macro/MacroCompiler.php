@@ -26,7 +26,12 @@ class MacroCompiler
      */
     public $macros = [];
 
-    public function __construct($macros)
+    /**
+     * Constructor
+     *
+     * @param Macro[] $macros
+     */
+    public function __construct(array $macros)
     {
         $this->macros = $macros;
     }

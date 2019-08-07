@@ -18,15 +18,30 @@ use Sert\Parser\Utils\SafeExplode;
 
 class MacroParser
 {
+    /**
+     * Name
+     *
+     * @var string
+     */
     public $name = "";
-    public $rule = null;
+    /**
+     * Rule
+     *
+     * @var callable
+     */
+    public $rule;
 
-    public function __construct($name, $rule)
+    public function __construct(string $name, callable $rule)
     {
         $this->name = $name;
         $this->rule = $rule;
     }
 
+    /**
+     * Registered Parsers
+     *
+     * @var MacroParser[]
+     */
     protected static $registered_parsers = [];
 
     public static function register(MacroParser $parser): MacroParser
@@ -61,7 +76,7 @@ class MacroParser
         foreach ($macro->args as $k => $v) {
             $rslt = $rslt->replace(
                 "\$$v",
-                $compiler->compile($exploded[$k + 1])
+                $compiler->compile($exploded[(int) $k + 1]) // Add "int" to avoid psalm issues
             );
         }
         return $rslt;
