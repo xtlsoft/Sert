@@ -122,7 +122,7 @@ class MacroCompiler
                         ->withCode(new CodePiece("__sert.macro." . uniqid() . "__", $expr));
                 else continue;
             }
-            if (SafeExplode::isBlankCharacter($v)) break;
+            if (!SafeExplode::isIdentifyCharacter($v)) break;
             $name .= $v;
         }
         return $name;

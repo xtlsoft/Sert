@@ -47,4 +47,12 @@ class SafeExplode
     {
         return in_array($char, ["\t", ' ', "\n", "\r"]);
     }
+
+    public static function isIdentifyCharacter(string $char): bool
+    {
+        return in_array(
+            $char,
+            str_split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
+        );
+    }
 }
